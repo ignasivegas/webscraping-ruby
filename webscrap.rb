@@ -24,7 +24,7 @@ def scrap_bq(topic)
 			quote = q.css(".bqQuoteLink a")[0].text
 			author = q.css(".bq-aut a")[0].text
 
-			CSV.open($file, "ab") do |csv|
+			CSV.open($file, "ab", {:col_sep => "|"}) do |csv|
   				csv << [quote, author, topic, "brainyquote.com", "en"]
 			end
 
@@ -70,7 +70,7 @@ def scrap_fc(topic, limit_page)
 				quote = quote.split('"')
 				quote = quote[0].strip
 
-				CSV.open($file, "ab") do |csv|
+				CSV.open($file, "ab", {:col_sep => "|"}) do |csv|
 	  				csv << [quote, author, topic, "frasescelebres.com", "es"]
 				end
 			end
@@ -102,7 +102,7 @@ def scrap_pb(topic_value, limit_page)
 			quote = q.css(".t")[0].text
 			author = q.css(".a a")[0].text
 
-			CSV.open($file, "ab") do |csv|
+			CSV.open($file, "ab", {:col_sep => "|"}) do |csv|
   				csv << [quote, author, topic.downcase, "proverbia.com", "es"]
 			end
 		end
@@ -136,7 +136,7 @@ def scrap_fn(topic, limit_page)
 			author = q.css(".social_links a")[0].text
 			topic = "sueño" if topic == "sueno"
 
-			CSV.open($file, "ab") do |csv|
+			CSV.open($file, "ab", {:col_sep => "|"}) do |csv|
   				csv << [quote, author, topic, "frasecelebre.net", "es"]
 			end
 			topic = "sueno" if topic == "sueño"
@@ -156,6 +156,50 @@ scrap_fn("superacion", 6)
 scrap_fn("riesgos", 5)
 scrap_fn("exito", 15)
 scrap_fn("sueno", 16)
+
+
+# webscrap citasmiticas.com
+def scrap_cm(id, topic)
+	puts 'SCRAPING citasmiticas.com'
+
+	url = "http://www.citasmiticas.com/categorias/lalala/"+id.to_s+"/"
+
+	doc = Nokogiri::HTML(open(url))   
+	to_delete = doc.css("ul.enlaces_web_social")
+	to_delete.each do |n|
+		n.remove
+	end
+	quotes = doc.css("ul.citas_destacadas")
+
+	quotes.css("ul.citas_destacadas li").each do |q|
+		quote = q.css(".cita")[0].text
+		author = q.css("p strong")[0].text
+		quote = quote.split('“')
+		quote = quote[1].strip
+		quote = quote.split('”')
+		quote = quote[0].strip
+
+		CSV.open($file, "ab", {:col_sep => "|"}) do |csv|
+				csv << [quote, author, topic, "citasmiticas.com", "es"]
+		end
+		
+	end
+
+
+
+end
+
+scrap_cm(15, "amor")
+scrap_cm(42, "dinero")
+scrap_cm(58, "fortuna")
+scrap_cm(53, "exito")
+scrap_cm(59, "fracaso")
+scrap_cm(55, "fama")
+scrap_cm(100, "personalidad")
+scrap_cm(125, "viajar")
+scrap_cm(79, "libertad")
+scrap_cm(116, "talento")
+scrap_cm(57, "felicidad")
 
 
 
